@@ -1,0 +1,62 @@
+body {
+    width: 960px;
+    margin: auto;
+}
+
+#data {
+    float: right;
+}
+
+/* svg {
+    border: 1px solid lightgrey;
+} */
+
+rect.frame {
+    stroke: lightgrey;
+    stroke-width: 1px;
+    fill: white;
+    fill-opacity: 0.6;
+}
+
+circle {
+    fill-opacity: 0.5;
+}
+
+circle.setosa {
+    fill:darkred;
+}
+
+circle.versicolor {
+    fill: darkgreen;
+}
+
+circle.virginica {
+    fill: darkblue;
+}
+
+text {
+    font-family: sans-serif;
+}
+
+g.axis line {
+    stroke: lightgrey;
+    stroke-width: 0.5px;
+}
+
+g.axis text {
+    font-size: 11px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.cell text {
+    font-size: 13px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.legend text {
+    font-style: italic;
+}
+
+.legend circle {
+    fill-opacity: 1;
+}
