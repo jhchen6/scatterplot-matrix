@@ -5,26 +5,42 @@ $(document).ready(function () {
         //"Petal length":"1.4","Petal width":"0.2","Species":"I. setosa"}
 
         var $svg = $("svg"),
-            svg = $svg[0],
-            width = 800,
-            height = 550;
+            svg = $svg[0];
+
+        // layout parameters configuration
+        var width = 800,
+            height = 550,
+            cellSize = 120,
+            cellInterval = 10,
+            cellSpan = cellSize + cellInterval;
 
         $svg.attr("width", width);
         $svg.attr("height", height);
 
         $("#data").append("p").html('<a href="https://en.wikipedia.org/wiki/Iris_flower_data_set">Data</a>');
 
-        var cellSize = 120,
-            cellInterval = 10,
-            cellSpan = cellSize + cellInterval;
-
+        // store attribute names
         var attributes = [];
         for (var attr in data[0]) {
             attributes.push(attr);
         }
+        var numAttribute = 4;
 
-        var scale = {};
-        for (var i = 1; i <= 4; i++) {
+        // get categories
+        var keyAttribute = "Species",
+            categories = [],
+            existAttribute = {};
+        data.forEach(function (flower) {
+            var species = flower[keyAttribute];
+            if (existAttribute[species] == undefined) {
+                existAttribute[species] = true;
+                categories.push(species);
+            }
+        });
+
+        // create scales for each attribute
+        var scales = {};
+        for (var i = 1; i <= numAttribute; i++) {
             var attr = attributes[i],
                 min = Infinity,
                 max = -Infinity;
@@ -37,7 +53,7 @@ $(document).ready(function () {
                     min = value;
                 }
             });
-            scale[attr] = initScale().range([0, cellSize]).domain([min, max]);
+            scales[attr] = initScale().range([0, cellSize]).domain([min, max]);
         }
 
         display();
@@ -46,12 +62,12 @@ $(document).ready(function () {
             var tickLength = 5;
             var $g = append(svg, "g").attr("transform", "translate(" + [10, 10] + ")");
 
-            var categories = ["I. setosa", "I. versicolor", "I. virginica"];
+            //create legend
             categories.forEach(function (category, index) {
                 var name = category.substring(3),
                     $gLegend = append($g, "g")
                         .attr("class", "legend")
-                        .attr("transform", "translate(" + [cellSpan * 4 + 50, 30 * (index + 1)] + ")");
+                        .attr("transform", "translate(" + [cellSpan * numAttribute + 50, 30 * (index + 1)] + ")");
                 append($gLegend, "circle")
                     .attr("class", name)
                     .attr("r", 3);
@@ -61,10 +77,10 @@ $(document).ready(function () {
                     .text("Iris " + name);
             });
 
-
-            for (var i = 0; i < 4; i++) {
+            // create axes
+            for (var i = 0; i < numAttribute; i++) {
                 var attr1 = attributes[i + 1],
-                    scale1 = scale[attr1],
+                    scale1 = scales[attr1],
                     numAxis = 6,
                     domain = scale1.domain(),
                     min = domain[0],
@@ -79,47 +95,54 @@ $(document).ready(function () {
 
                 values.forEach(function (value) {
                     var y = scale1(value);
+
+                    //draw horizontal axes
                     var $gAxis = append($g, "g")
                         .attr("class", "y axis")
                         .attr("transform", "translate(" + [0, cellSpan * i + cellSize - y] + ")");
                     append($gAxis, "line")
                         .attr("x1", -tickLength)
-                        .attr("x2", cellSpan * 4 - tickLength)
+                        .attr("x2", cellSpan * numAttribute - tickLength)
                     append($gAxis, "text")
-                        .attr("x", cellSpan * 4)
+                        .attr("x", cellSpan * numAttribute)
                         .attr("dy", "0.31em")
                         .text(value);
 
+                    //draw vertical axes
                     $gAxis = append($g, "g")
                         .attr("class", "x axis")
                         .attr("transform", "translate(" + [cellSpan * i + y, 0] + ")");
                     append($gAxis, "line")
                         .attr("y1", -tickLength)
-                        .attr("y2", cellSpan * 4 - tickLength)
+                        .attr("y2", cellSpan * numAttribute - tickLength)
                     append($gAxis, "text")
-                        .attr("y", cellSpan * 4)
+                        .attr("y", cellSpan * numAttribute)
                         .attr("dx", "-" + (value + "").length / 2 * 0.31 + "em")
                         .attr("dy", "0.7em")
                         .text(value);
                 });
             }
 
-            for (var i = 0; i < 4; i++) {
+            //draw matrix cells
+            for (var i = 0; i < numAttribute; i++) {
                 var attr1 = attributes[i + 1],
-                    scale1 = scale[attr1];
-                for (var j = 0; j < 4; j++) {
+                    scale1 = scales[attr1];
+                for (var j = 0; j < numAttribute; j++) {
                     var attr2 = attributes[j + 1],
-                        scale2 = scale[attr2];
+                        scale2 = scales[attr2];
 
+                    //create cell
                     var $gCell = append($g, "g")
                         .attr("class", "cell")
                         .attr("transform", "translate(" + [cellSpan * j, cellSpan * i] + ")");
 
+                    //frame
                     append($gCell, "rect")
                         .attr("class", "frame")
                         .attr("width", cellSize)
                         .attr("height", cellSize);
 
+                    //data points
                     data.forEach(function (flower) {
                         var x = scale2(flower[attr2]),
                             y = scale1(flower[attr1]);
@@ -130,6 +153,7 @@ $(document).ready(function () {
                             .attr("r", 3);
                     });
 
+                    //cell attribute label
                     if (i == j) {
                         append($gCell, "text")
                             .attr("x", "0.31em")
@@ -138,34 +162,35 @@ $(document).ready(function () {
                     }
                 }
             }
-
-            function append(parent, tag) {
-                var elem = document.createElementNS("http://www.w3.org/2000/svg", tag);
-                $(parent).append(elem);
-                return $(elem);
-            }
-        }
-
-        function initScale() {
-            var k,
-                b,
-                domain = [0, 1],
-                range = [0, 1];
-
-            function scale(value) {
-                return k * value + b;
-            }
-            scale.domain = function (_) {
-                return arguments.length ? (domain = _, init(), scale) : domain;
-            }
-            scale.range = function (_) {
-                return arguments.length ? (range = _, init(), scale) : range;
-            }
-            function init() {
-                k = (range[1] - range[0]) / (domain[1] - domain[0]);
-                b = range[1] - k * domain[1];
-            }
-            return scale;
         }
     });
 });
+
+function append(parent, tag) {
+    var elem = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    $(parent).append(elem);
+    return $(elem);
+}
+
+//for create linear scales
+function initScale() {
+    var k,
+        b,
+        domain = [0, 1],
+        range = [0, 1];
+
+    function scale(value) {
+        return k * value + b;
+    }
+    scale.domain = function (_) {
+        return arguments.length ? (domain = _, init(), scale) : domain;
+    }
+    scale.range = function (_) {
+        return arguments.length ? (range = _, init(), scale) : range;
+    }
+    function init() {
+        k = (range[1] - range[0]) / (domain[1] - domain[0]);
+        b = range[1] - k * domain[1];
+    }
+    return scale;
+}
