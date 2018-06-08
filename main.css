@@ -3,79 +3,14 @@ body {
     margin: auto;
 }
 
-div {
-    float: right;
-}
-
-/* svg {
-    border: 1px solid lightgrey;
-} */
-text {
-    font-family: sans-serif;
-}
-
 rect.frame {
-    stroke: lightgrey;
+    stroke: grey;
     stroke-width: 1px;
     fill: white;
     fill-opacity: 0.6;
 }
 
-rect.background {
-    /* visibility: hidden; */
-    fill: transparent;
-    cursor: crosshair;
-}
-
-rect.extent {
-    fill: black;
-    fill-opacity: 0.125;
-    stroke: white;
-    stroke-width: 1px;
-    cursor: move;
-}
-
-rect.resize {
-    stroke: transparent;
-    stroke-width: 1px;
-    fill: transparent;
-    /* visibility: hidden; */
-}
-
-rect.n {
-    cursor: n-resize;
-}
-
-rect.e {
-    cursor: e-resize;
-}
-
-rect.s {
-    cursor: s-resize;
-}
-
-rect.w {
-    cursor: w-resize;
-}
-
-rect.ne {
-    cursor: ne-resize;
-}
-
-rect.se {
-    cursor: se-resize;
-}
-
-rect.sw {
-    cursor: sw-resize;
-}
-
-rect.nw {
-    cursor: nw-resize;
-}
-
 circle {
-    fill: lightgrey;
     fill-opacity: 0.5;
 }
 
@@ -91,17 +26,29 @@ circle.virginica {
     fill: darkblue;
 }
 
+circle.setosa.notSelected,
+circle.versicolor.notSelected,
+circle.virginica.notSelected {
+    fill: lightgrey;
+}
+
 .cell text {
     font-size: 13px;
+    fill: black;
+    pointer-events: none;
     font-family: Arial, Helvetica, sans-serif;
 }
 
-g.axis line {
+.domain {
+    display: none;
+}
+
+.tick line {
     stroke: lightgrey;
     stroke-width: 0.5px;
 }
 
-g.axis text {
+.tick text {
     font-size: 11px;
     font-family: Arial, Helvetica, sans-serif;
 }
